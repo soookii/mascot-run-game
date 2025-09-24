@@ -2,71 +2,121 @@
   {
     "id": "q01",
     "type": "ox",
-    "stem": "전기차는 기름(휘발유) 대신 전기로 달려요.",
+    "stem": "전기차는 기름 대신 ‘전기’로 움직인다.",
     "answer": true,
-    "explain": "배터리에 저장된 전기를 써요."
+    "explain": "전기차는 전기를 써서 달려요.",
+    "difficulty": "easy"
   },
   {
     "id": "q02",
     "type": "ox",
-    "stem": "브레이크를 잡으면 전기를 다시 모을 수 있어요.",
+    "stem": "내연기관 자동차는 나쁜 연기를 배출한다.",
     "answer": true,
-    "explain": "회생제동으로 전기를 일부 충전해요."
+    "explain": "배기가스가 나와 공기를 더럽힐 수 있어요.",
+    "difficulty": "easy"
   },
   {
     "id": "q03",
     "type": "ox",
-    "stem": "배터리가 너무 뜨거워져도 괜찮아요.",
-    "answer": false,
-    "explain": "과열은 위험하니 식혀야 해요."
+    "stem": "전기차는 배기가스(나쁜 연기)가 나오지 않는다.",
+    "answer": true,
+    "explain": "전기차는 달릴 때 배기가스가 없어요.",
+    "difficulty": "easy"
   },
   {
     "id": "q04",
     "type": "ox",
-    "stem": "모터는 바퀴를 돌리는 데 도움을 줘요.",
+    "stem": "전기차의 ‘배터리’는 자동차에서 엔진과 비슷한 역할을 한다.",
     "answer": true,
-    "explain": "모터의 회전력이 바퀴로 전달돼요."
+    "explain": "배터리가 힘(에너지)을 저장해 차를 움직이게 해요.",
+    "difficulty": "easy"
   },
   {
     "id": "q05",
     "type": "ox",
-    "stem": "동박은 전기가 잘 통하지 않아요.",
+    "stem": "전기는 태양, 바람, 물과는 아무 관련이 없다.",
     "answer": false,
-    "explain": "동박은 얇은 구리로 전기가 잘 통해요."
+    "explain": "태양광·풍력·수력으로 전기를 만들 수 있어요.",
+    "difficulty": "easy"
   },
   {
     "id": "q06",
     "type": "ox",
-    "stem": "전기차는 주행 중 배기가스를 내뿜지 않아요.",
+    "stem": "내연기관 자동차 1대는 1년에 약 1.5톤의 나쁜 연기를 낸다.",
     "answer": true,
-    "explain": "달릴 때 배기가스가 없어요."
+    "explain": "자료에서 그 수치를 알려줬어요.",
+    "difficulty": "medium"
   },
   {
     "id": "q07",
     "type": "ox",
-    "stem": "배터리를 버릴 때는 재활용 수거함에 맡기는 게 좋아요.",
+    "stem": "전기차는 기름값보다 보통 충전 비용이 낮다.",
     "answer": true,
-    "explain": "안전하게 분리 수거해요."
+    "explain": "전기 충전 비용이 더 저렴한 편이에요.",
+    "difficulty": "medium"
   },
   {
     "id": "q08",
     "type": "ox",
-    "stem": "BMS는 배터리 상태를 지켜보는 장치예요.",
+    "stem": "전기차 배터리 안에서 ‘분리막’은 양극과 음극이 닿지 않게 도와준다.",
     "answer": true,
-    "explain": "전압·온도·전류 등을 관리해요."
+    "explain": "분리막은 서로 직접 닿지 않도록 안전하게 막아줘요.",
+    "difficulty": "medium"
   },
   {
     "id": "q09",
     "type": "ox",
-    "stem": "전기차는 충전소에서 충전해요.",
+    "stem": "전기차의 ‘동박(구리박)’은 전기를 밖으로 보내는 길을 만들어 준다.",
     "answer": true,
-    "explain": "집이나 공공 충전소에서 충전해요."
+    "explain": "전기가 흐르도록 도와주는 얇은 구리층이에요.",
+    "difficulty": "medium"
   },
   {
     "id": "q10",
     "type": "ox",
-    "stem": "반도체는 전기가 흐르는 걸 절대 조절하지 못해요.",
+    "stem": "전기차에는 AI 기능이 전혀 쓰이지 않는다.",
     "answer": false,
-    "explain": "반도체는 전도/절연을 조절해요."
+    "explain": "자율주행, 배터리 관리, 음성비서 등 AI가 많이 쓰여요.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "q11",
+    "type": "ox",
+    "stem": "전해질은 에너지 요정(리튬 이온)이 양극과 음극 사이를 오갈 수 있게 ‘길’을 만들어 준다.",
+    "answer": true,
+    "explain": "전해질은 이온이 이동하는 통로 역할을 해요.",
+    "difficulty": "hard"
+  },
+  {
+    "id": "q12",
+    "type": "ox",
+    "stem": "반도체는 아주 작은 결함이 있어도 문제가 생길 수 있어 꼼꼼한 검사가 중요하다.",
+    "answer": true,
+    "explain": "반도체는 미세해서 작은 결함도 큰 고장이 될 수 있어요.",
+    "difficulty": "hard"
+  },
+  {
+    "id": "q13",
+    "type": "ox",
+    "stem": "스마트 주차, 탑승자 모니터링, 감정 인식 보조는 모두 AI가 할 수 있는 일이다.",
+    "answer": true,
+    "explain": "전기차의 다양한 기능이 AI로 동작해요.",
+    "difficulty": "hard"
+  },
+  {
+    "id": "q14",
+    "type": "ox",
+    "stem": "전기차를 만들 때는 배터리 기술자만 필요하고, 반도체 전문가나 AI 전문가는 필요 없다.",
+    "answer": false,
+    "explain": "전기차에는 배터리·반도체·AI 등 여러 직업이 함께 필요해요.",
+    "difficulty": "hard"
+  },
+  {
+    "id": "q15",
+    "type": "ox",
+    "stem": "전기차가 많아지면, 달릴 때 배기가스가 없어 도시 공기 질 개선에 도움 될 수 있다.",
+    "answer": true,
+    "explain": "전기차는 달릴 때 배기가스가 없어 공기 오염을 줄이는 데 도움 돼요.",
+    "difficulty": "hard"
   }
 ]

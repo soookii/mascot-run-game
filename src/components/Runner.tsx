@@ -1,18 +1,16 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { MascotType } from '../config';
 
 interface RunnerProps {
   mascot: MascotType;
   isJumping: boolean;
   isStumbling: boolean;
-  hasBooster: boolean;
 }
 
 const Runner: React.FC<RunnerProps> = ({ 
   mascot, 
   isJumping, 
-  isStumbling, 
-  hasBooster 
+  isStumbling 
 }) => {
   const getRunnerClass = () => {
     let className = 'runner';
@@ -25,152 +23,279 @@ const Runner: React.FC<RunnerProps> = ({
     return className;
   };
 
-  const renderCat = () => (
-    <svg
-      width="80"
-      height="80"
-      viewBox="0 0 80 80"
-      style={{
-        width: '100%',
-        height: '100%',
-      }}
-    >
-      {/* 고양이 몸체 (더 둥글고 귀여운) */}
-      <ellipse cx="40" cy="55" rx="28" ry="32" fill="#333" />
-      <circle cx="40" cy="30" r="24" fill="#333" />
-      
-      {/* 고양이 귀 (더 귀여운 모양) */}
-      <polygon points="12,18 18,8 24,18" fill="#333" />
-      <polygon points="56,18 62,8 68,18" fill="#333" />
-      
-      {/* 고양이 귀 안쪽 (더 귀여운) */}
-      <polygon points="14,16 18,11 22,16" fill="#FF69B4" />
-      <polygon points="58,16 62,11 66,16" fill="#FF69B4" />
-      
-      {/* 고양이 눈 (더 크고 귀여운) */}
-      <ellipse cx="30" cy="26" rx="5" ry="7" fill="white" />
-      <ellipse cx="50" cy="26" rx="5" ry="7" fill="white" />
-      <ellipse cx="30" cy="26" rx="4" ry="6" fill="#87CEEB" />
-      <ellipse cx="50" cy="26" rx="4" ry="6" fill="#87CEEB" />
-      <circle cx="31" cy="25" r="2" fill="white" />
-      <circle cx="51" cy="25" r="2" fill="white" />
-      
-      {/* 고양이 눈썹 (귀여운 표정) */}
-      <path d="M 26 22 Q 30 19 34 22" stroke="#333" strokeWidth="2" fill="none" strokeLinecap="round" />
-      <path d="M 46 22 Q 50 19 54 22" stroke="#333" strokeWidth="2" fill="none" strokeLinecap="round" />
-      
-      {/* 고양이 코 (더 귀여운) */}
-      <polygon points="40,33 37,37 43,37" fill="#FF69B4" />
-      
-      {/* 고양이 입 (웃는 모양) */}
-      <path d="M 40 37 Q 36 40 32 38" stroke="#333" strokeWidth="2" fill="none" strokeLinecap="round" />
-      <path d="M 40 37 Q 44 40 48 38" stroke="#333" strokeWidth="2" fill="none" strokeLinecap="round" />
-      
-      {/* 고양이 볼 (귀여운 볼) - 입 주변에서 완전 제거 */}
-      <circle cx="20" cy="42" r="4" fill="#FFB6C1" opacity="0.7" />
-      <circle cx="60" cy="42" r="4" fill="#FFB6C1" opacity="0.7" />
-      
-      
-      {/* 고양이 꼬리 (더 귀여운) */}
-      <path d="M 68 50 Q 80 35 85 20 Q 90 10 80 15" stroke="#333" strokeWidth="10" fill="none" strokeLinecap="round" />
-    </svg>
-  );
+  const renderDroplet = (variant: 'yellow' | 'blue') => {
+    if (variant === 'yellow') {
+      return (
+        <svg width="80" height="80" viewBox="0 0 80 80" style={{ width: '100%', height: '100%' }}>
+          {/* 노란색 캐릭터 - 첨부 이미지에 더 가깝게 */}
+          
+          {/* 머리 부분 (완전한 원형) */}
+          <circle cx="40" cy="28" r="20" fill="#FFD700" />
+          
+          {/* 몸통 (둥근 형태) */}
+          <ellipse cx="40" cy="57" rx="18" ry="20" fill="#FFD700" />
+          
+          {/* 팔 (더 둥글게) */}
+          <ellipse cx="20" cy="52" rx="10" ry="6" fill="#FFD700" />
+          <ellipse cx="60" cy="52" rx="10" ry="6" fill="#FFD700" />
+          
+          {/* 다리 (더 둥글게) */}
+          <ellipse cx="32" cy="75" rx="8" ry="6" fill="#FFD700" />
+          <ellipse cx="48" cy="75" rx="8" ry="6" fill="#FFD700" />
+          
+          {/* 얼굴 */}
+          {/* 눈 (더 크고 둥글게, 10% 더 벌어짐) */}
+          <circle cx="32" cy="22" r="4" fill="#000" />
+          <circle cx="48" cy="22" r="4" fill="#000" />
+          {/* 눈 하이라이트 (더 크게) */}
+          <circle cx="33.5" cy="20.5" r="1.8" fill="white" />
+          <circle cx="49.5" cy="20.5" r="1.8" fill="white" />
+          <circle cx="34.2" cy="19.8" r="0.8" fill="white" />
+          <circle cx="50.2" cy="19.8" r="0.8" fill="white" />
+          
+          {/* 볼 (더 크고 자연스럽게) */}
+          <circle cx="24" cy="30" r="4" fill="#FFAB91" />
+          <circle cx="56" cy="30" r="4" fill="#FFAB91" />
+          
+          {/* 입 (미소) */}
+          <path d="M35 34 Q40 38 45 34" stroke="#333" strokeWidth="2" fill="none" strokeLinecap="round" />
+          
+          {/* 주변 번개 이펙트 */}
+          <g opacity="0.8">
+            {/* 좌측 상단 */}
+            <polygon points="8,6 16,6 13,12 22,12 6,25 13,18 6,18" fill="#FFEB3B" />
+            <polygon points="10,16 16,16 14,20 20,20 8,28 14,24 8,24" fill="#FFEB3B" />
+            
+            {/* 우측 중간 */}
+            <polygon points="63,33 72,33 69,39 78,39 60,53 69,46 60,46" fill="#FFEB3B" />
+            <polygon points="66,43 72,43 70,47 76,47 64,55 70,51 64,51" fill="#FFEB3B" />
+            
+            {/* 우측 상단 */}
+            <polygon points="58,8 66,8 64,12 70,12 56,22 64,18 56,18" fill="#FFEB3B" />
+          </g>
+        </svg>
+      );
+    } else {
+      return (
+        <svg width="80" height="80" viewBox="0 0 80 80" style={{ width: '100%', height: '100%' }}>
+          {/* 파란색 캐릭터 - 첨부 이미지에 더 가깝게 */}
+          
+          {/* 머리 부분 (완전한 원형) */}
+          <circle cx="40" cy="28" r="20" fill="#64B5F6" />
+          
+          {/* 몸통 (둥근 형태) */}
+          <ellipse cx="40" cy="57" rx="18" ry="20" fill="#64B5F6" />
+          
+          {/* 팔 (더 둥글게) */}
+          <ellipse cx="20" cy="52" rx="10" ry="6" fill="#64B5F6" />
+          <ellipse cx="60" cy="52" rx="10" ry="6" fill="#64B5F6" />
+          
+          {/* 다리 (더 둥글게) */}
+          <ellipse cx="32" cy="75" rx="8" ry="6" fill="#64B5F6" />
+          <ellipse cx="48" cy="75" rx="8" ry="6" fill="#64B5F6" />
+          
+          {/* 얼굴 */}
+          {/* 눈 (더 크고 둥글게, 10% 더 벌어짐) */}
+          <circle cx="32" cy="22" r="4" fill="#000" />
+          <circle cx="48" cy="22" r="4" fill="#000" />
+          {/* 눈 하이라이트 (더 크게) */}
+          <circle cx="33.5" cy="20.5" r="1.8" fill="white" />
+          <circle cx="49.5" cy="20.5" r="1.8" fill="white" />
+          <circle cx="34.2" cy="19.8" r="0.8" fill="white" />
+          <circle cx="50.2" cy="19.8" r="0.8" fill="white" />
+          
+          {/* 볼 (더 크고 자연스럽게) */}
+          <circle cx="26" cy="30" r="4" fill="#FFB6C1" />
+          <circle cx="54" cy="30" r="4" fill="#FFB6C1" />
+          
+          {/* 입 (미소) */}
+          <path d="M35 34 Q40 38 45 34" stroke="#333" strokeWidth="2" fill="none" strokeLinecap="round" />
+          
+          {/* 주변 번개 이펙트 (파란색 테마) */}
+          <g opacity="0.8">
+            {/* 좌측 상단 */}
+            <polygon points="8,8 16,8 13,14 22,14 6,26 13,20 6,20" fill="#42A5F5" stroke="#1976D2" strokeWidth="0.5" />
+            <polygon points="10,18 16,18 14,22 20,22 8,30 14,26 8,26" fill="#42A5F5" stroke="#1976D2" strokeWidth="0.5" />
+            
+            {/* 우측 중간 */}
+            <polygon points="63,35 72,35 69,41 78,41 60,55 69,48 60,48" fill="#42A5F5" stroke="#1976D2" strokeWidth="0.5" />
+            <polygon points="66,45 72,45 70,49 76,49 64,57 70,53 64,53" fill="#42A5F5" stroke="#1976D2" strokeWidth="0.5" />
+            
+            {/* 우측 상단 */}
+            <polygon points="58,10 66,10 64,14 70,14 56,24 64,20 56,20" fill="#42A5F5" stroke="#1976D2" strokeWidth="0.5" />
+          </g>
+          
+          {/* 우측 하단 장식 제거 */}
+        </svg>
+      );
+    }
+  };
 
-  const renderDog = () => (
-    <svg
-      width="80"
-      height="80"
-      viewBox="0 0 80 80"
-      style={{
-        width: '100%',
-        height: '100%',
-      }}
-    >
-      {/* 강아지 몸체 (더 둥글고 귀여운) */}
-      <ellipse cx="40" cy="55" rx="30" ry="35" fill="#FFF" />
-      <circle cx="40" cy="30" r="27" fill="#FFF" />
-      
-      {/* 강아지 귀 (더 귀여운 모양) */}
-      <ellipse cx="18" cy="25" rx="12" ry="20" fill="#FFF" />
-      <ellipse cx="62" cy="25" rx="12" ry="20" fill="#FFF" />
-      
-      {/* 강아지 귀 안쪽 (더 귀여운) */}
-      <ellipse cx="18" cy="25" rx="6" ry="12" fill="#FFB6C1" />
-      <ellipse cx="62" cy="25" rx="6" ry="12" fill="#FFB6C1" />
-      
-      {/* 강아지 눈 (더 크고 귀여운) */}
-      <circle cx="30" cy="26" r="5" fill="#333" />
-      <circle cx="50" cy="26" r="5" fill="#333" />
-      
-      {/* 강아지 눈 하이라이트 (더 귀여운) */}
-      <circle cx="31" cy="25" r="2" fill="white" />
-      <circle cx="51" cy="25" r="2" fill="white" />
-      
-      {/* 강아지 눈썹 (귀여운 표정) */}
-      <path d="M 26 23 Q 30 20 34 23" stroke="#333" strokeWidth="2" fill="none" strokeLinecap="round" />
-      <path d="M 46 23 Q 50 20 54 23" stroke="#333" strokeWidth="2" fill="none" strokeLinecap="round" />
-      
-      {/* 강아지 코 (더 귀여운) */}
-      <circle cx="40" cy="33" r="3" fill="#333" />
-      
-      {/* 강아지 입 (웃는 모양) */}
-      <path d="M 40 37 Q 36 40 32 38" stroke="#333" strokeWidth="2" fill="none" strokeLinecap="round" />
-      <path d="M 40 37 Q 44 40 48 38" stroke="#333" strokeWidth="2" fill="none" strokeLinecap="round" />
-      
-      {/* 강아지 혀 (더 귀여운) */}
-      <ellipse cx="40" cy="42" rx="5" ry="4" fill="#FF69B4" />
-      
-      {/* 강아지 볼 (귀여운 볼) - 입 주변에서 완전 제거 */}
-      <circle cx="20" cy="42" r="5" fill="#FFB6C1" opacity="0.8" />
-      <circle cx="60" cy="42" r="5" fill="#FFB6C1" opacity="0.8" />
-      
-      
-      {/* 강아지 꼬리 (더 귀여운) */}
-      <path d="M 67 50 Q 80 35 85 20 Q 90 10 80 15" stroke="#FFF" strokeWidth="12" fill="none" strokeLinecap="round" />
-    </svg>
-  );
+  // 외부 아트(.svg/.png) 자동 사용: /public/mascot-yellow.(svg|png), /public/mascot-blue.(svg|png)
+  const [externalAsset, setExternalAsset] = useState<string | null>(null);
+  const [processedAsset, setProcessedAsset] = useState<string | null>(null);
+  useEffect(() => {
+    let mounted = true;
+    const variant = mascot === 'yellow' ? 'yellow' : 'blue';
+    const sessionKey = variant === 'yellow' ? 'pre_mascot_yellow' : 'pre_mascot_blue';
+    const sessionCached = typeof window !== 'undefined' ? sessionStorage.getItem(sessionKey) : null;
+    // 사전 처리된 데이터 URL이 있으면 즉시 사용하여 전환 시 깜빡임/깨짐 방지
+    if (sessionCached) {
+      setExternalAsset(sessionCached);
+      return () => { mounted = false; };
+    }
+    const candidates = [
+      sessionCached || '',
+      `/mascot-${variant}.svg`,
+      `/mascot-${variant}.png`,
+      `/mascot-${variant}@2x.png`,
+      `/mascot-${variant}(2).svg`,
+      `/mascot-${variant}(2).png`,
+      `/mascot-${variant}(2)@2x.png`,
+    ];
+    (async () => {
+      for (const url of candidates) {
+        if (!url) continue;
+        try {
+          const res = await fetch(url, { method: 'HEAD' });
+          if (res.ok) {
+            if (mounted) setExternalAsset(url);
+            return;
+          }
+        } catch {}
+      }
+      if (mounted) setExternalAsset(null);
+    })();
+    return () => { mounted = false; };
+  }, [mascot]);
+
+  // 왼쪽 캐릭터만 사용하도록 필요 시 좌측 절반 크롭 + (리니 PNG는 흰 배경 투명화)
+  useEffect(() => {
+    let cancelled = false;
+    const run = async () => {
+      if (!externalAsset) {
+        setProcessedAsset(null);
+        return;
+      }
+      try {
+        const img = new Image();
+        img.src = externalAsset;
+        await new Promise<void>((resolve, reject) => {
+          img.onload = () => resolve();
+          img.onerror = () => reject(new Error('failed to load'));
+        });
+        if (cancelled) return;
+        const srcW = img.naturalWidth;
+        const srcH = img.naturalHeight;
+        const hasTwoUp = srcW >= srcH * 1.5; // 가로로 2인 배치로 추정 시 좌측만 사용
+        const leftCropRatio = mascot === 'blue' ? 0.6 : 0.5; // 리니는 번개 여유 포함
+        const drawW = hasTwoUp ? Math.floor(srcW * leftCropRatio) : srcW;
+        const drawH = srcH;
+        const canvas = document.createElement('canvas');
+        canvas.width = drawW;
+        canvas.height = drawH;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          setProcessedAsset(externalAsset);
+          return;
+        }
+        // 좌측 중심 + 우측 아이콘 여유 포함하여 크롭(좌표는 0에서 시작)
+        if (hasTwoUp) {
+          ctx.drawImage(img, 0, 0, drawW, drawH, 0, 0, drawW, drawH);
+        } else {
+          ctx.drawImage(img, 0, 0, drawW, drawH);
+        }
+
+        // 리니(blue) PNG/투명화 필요 시 배경 정리
+        if (mascot === 'blue') {
+          const { width, height } = canvas;
+          const imageData = ctx.getImageData(0, 0, width, height);
+          const data = imageData.data;
+          const total = width * height;
+          const visited = new Uint8Array(total);
+          const queue = new Uint32Array(total);
+          let qh = 0, qt = 0;
+          const idx = (x: number, y: number) => y * width + x;
+          const nearWhite = (i: number) => {
+            const r = data[i], g = data[i + 1], b = data[i + 2];
+            const maxDiff = Math.max(r, g, b) - Math.min(r, g, b);
+            return r >= 248 && g >= 248 && b >= 248 && maxDiff <= 10;
+          };
+          const pushIf = (x: number, y: number) => {
+            if (x < 0 || y < 0 || x >= width || y >= height) return;
+            const p = idx(x, y);
+            if (visited[p]) return;
+            const di = p * 4;
+            if (!nearWhite(di)) return;
+            visited[p] = 1; queue[qt++] = p;
+          };
+          for (let x = 0; x < width; x++) { pushIf(x, 0); pushIf(x, height - 1); }
+          for (let y = 0; y < height; y++) { pushIf(0, y); pushIf(width - 1, y); }
+          while (qh < qt) {
+            const p = queue[qh++];
+            const x = p % width; const y = (p / width) | 0;
+            const di = p * 4; data[di + 3] = 0;
+            pushIf(x - 1, y); pushIf(x + 1, y); pushIf(x, y - 1); pushIf(x, y + 1);
+          }
+          ctx.putImageData(imageData, 0, 0);
+        }
+        const url = canvas.toDataURL('image/png');
+        if (!cancelled) setProcessedAsset(url);
+      } catch {
+        setProcessedAsset(externalAsset);
+      }
+    };
+    run();
+    return () => { cancelled = true; };
+  }, [externalAsset, mascot]);
 
   return (
     <div style={{ position: 'relative', width: '300px', height: '180px', overflow: 'visible' }}>
       {/* 정교한 캐릭터 */}
       <div
         style={{
-          width: '80px',
-          height: '80px',
+          width: '150px',
+          height: '150px',
           position: 'relative',
-          left: '100px', // 꼬리를 위한 더 큰 여백
-          top: '20px', // 땅에 붙도록 조정
+          left: '64px', // 기존 위치 유지(필요 시 추후 미세 보정)
+          top: '0px',
+          display: 'flex', alignItems: 'center', justifyContent: 'center'
         }}
         className={getRunnerClass()}
       >
-        {mascot === 'cat' ? renderCat() : renderDog()}
-      </div>
-      
-      {/* 부스터 불꽃 효과 */}
-      {hasBooster && (
-        <div
-          style={{
-            position: 'absolute',
-            left: -30,
-            top: '50%',
-            transform: 'translateY(-50%)',
-            width: '100px',
-            height: '20px',
-            zIndex: 5,
-          }}
-        >
-          {[...Array(5)].map((_, i) => (
-            <div
-              key={i}
-              className="flame-trail"
+        {/* 외부 제공 캐릭터가 있으면 그대로 사용, 없으면 기존 드로잉 사용 */}
+        {externalAsset ? (
+          <div style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
+            <img
+              src={processedAsset || externalAsset}
+              alt="mascot"
               style={{
-                left: i * 15,
-                animationDelay: `${i * 0.1}s`,
+                width: '150px',
+                height: '150px',
+                objectFit: 'contain',
+                objectPosition: 'center',
+                imageRendering: 'pixelated',
+                background: 'transparent'
+              }}
+              draggable={false}
+              onError={(e) => {
+                // 외부 리소스 로딩 실패 시 내장 SVG로 폴백
+                (e.currentTarget as HTMLImageElement).style.display = 'none';
+                const container = (e.currentTarget.parentElement as HTMLElement);
+                if (container) {
+                  const fallback = document.createElement('div');
+                  fallback.style.width = '150px';
+                  fallback.style.height = '150px';
+                  container.appendChild(fallback);
+                }
               }}
             />
-          ))}
-        </div>
-      )}
+          </div>
+        ) : (
+          mascot === 'yellow' ? renderDroplet('yellow') : renderDroplet('blue')
+        )}
+      </div>
+      
     </div>
   );
 };

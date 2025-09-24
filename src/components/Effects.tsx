@@ -1,23 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import { triggerConfetti, triggerVictoryConfetti, triggerBoosterConfetti } from '../lib/confetti';
+import { triggerConfetti, triggerVictoryConfetti } from '../lib/confetti';
 
 interface EffectsProps {
   isCorrect: boolean | null;
   isJumping: boolean;
-  hasBooster: boolean;
   gameFinished: boolean;
 }
 
 const Effects: React.FC<EffectsProps> = ({
   isCorrect,
   isJumping,
-  hasBooster,
   gameFinished,
 }) => {
   const [showConfetti, setShowConfetti] = useState(false);
   const [showVictory, setShowVictory] = useState(false);
+  // 전기 이펙트 사용 안 함
 
-  // 정답 시 폭죽 효과
+  // 정답 시 폭죽 효과만
   useEffect(() => {
     if (isCorrect === true) {
       setShowConfetti(true);
@@ -30,6 +29,14 @@ const Effects: React.FC<EffectsProps> = ({
       
       return () => clearTimeout(timer);
     }
+    if (isCorrect === false) {
+      // 오답 시 화면 흔들림 클래스 잠깐 추가
+      const container = document.querySelector('.game-container');
+      if (container) {
+        container.classList.add('shake-screen');
+        setTimeout(() => container.classList.remove('shake-screen'), 600);
+      }
+    }
   }, [isCorrect]);
 
   // 게임 완료 시 승리 폭죽
@@ -40,12 +47,7 @@ const Effects: React.FC<EffectsProps> = ({
     }
   }, [gameFinished]);
 
-  // 부스터 활성화 시 폭죽
-  useEffect(() => {
-    if (hasBooster) {
-      triggerBoosterConfetti();
-    }
-  }, [hasBooster]);
+  // 부스터 제거됨
 
   return (
     <div className="effects">
@@ -97,38 +99,6 @@ const Effects: React.FC<EffectsProps> = ({
         />
       )}
 
-      {/* 부스터 효과 */}
-      {hasBooster && (
-        <div
-          style={{
-            position: 'absolute',
-            left: '470px', // 캐릭터 위치에 맞춤
-            bottom: '90px', // 땅에 맞춤
-            width: '100px',
-            height: '20px',
-            pointerEvents: 'none',
-            zIndex: 5,
-          }}
-        >
-          {[...Array(8)].map((_, i) => (
-            <div
-              key={i}
-              className="flame-trail"
-              style={{
-                position: 'absolute',
-                left: i * 12,
-                top: Math.random() * 10,
-                width: '15px',
-                height: '15px',
-                background: `radial-gradient(circle, #FF4500 0%, #FFD700 50%, transparent 100%)`,
-                borderRadius: '50%',
-                animation: `flame ${0.3 + Math.random() * 0.2}s linear infinite`,
-                animationDelay: `${i * 0.1}s`,
-              }}
-            />
-          ))}
-        </div>
-      )}
     </div>
   );
 };

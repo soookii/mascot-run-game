@@ -4,14 +4,14 @@ import { QuizItem } from '../config';
 interface QuizModalProps {
   quiz: QuizItem;
   onAnswer: (answer: boolean) => void;
-  onClose: () => void;
+  onClose?: () => void; // 내부에서 미사용이므로 선택적 처리
   showExplanation: boolean;
 }
 
 const QuizModal: React.FC<QuizModalProps> = ({
   quiz,
   onAnswer,
-  onClose,
+  onClose: _onClose,
   showExplanation,
 }) => {
   // 키보드 이벤트 처리
@@ -43,8 +43,20 @@ const QuizModal: React.FC<QuizModalProps> = ({
     onAnswer(answer);
   };
 
+  const PixelO: React.FC = () => (
+    <svg viewBox="0 0 16 16" className="pixel-icon" shapeRendering="crispEdges">
+      <rect x="3" y="3" width="10" height="10" fill="none" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="butt" strokeLinejoin="miter" />
+    </svg>
+  );
+
+  const PixelX: React.FC = () => (
+    <svg viewBox="0 0 16 16" className="pixel-icon" shapeRendering="crispEdges">
+      <path d="M3 3 L13 13 M13 3 L3 13" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="butt" strokeLinejoin="miter" fill="none" />
+    </svg>
+  );
+
   return (
-    <div className="quiz-modal">
+    <div className="quiz-modal" role="dialog" aria-modal="true" style={{ fontFamily: 'YourFont, sans-serif' }}>
       <div className="quiz-question">
         {quiz.stem}
       </div>
@@ -53,22 +65,29 @@ const QuizModal: React.FC<QuizModalProps> = ({
         <button
           className="quiz-button o"
           onClick={() => handleAnswer(true)}
-          style={{ minWidth: '80px', minHeight: '80px' }}
+          style={{ minWidth: '86px', minHeight: '86px' }}
         >
-          O
+          <PixelO />
         </button>
         <button
           className="quiz-button x"
           onClick={() => handleAnswer(false)}
-          style={{ minWidth: '80px', minHeight: '80px' }}
+          style={{ minWidth: '86px', minHeight: '86px' }}
         >
-          X
+          <PixelX />
         </button>
       </div>
       
       {showExplanation && (
         <div className="quiz-explanation">
           {quiz.explain}
+        </div>
+      )}
+
+      {/* 난이도 표시 */}
+      {quiz.difficulty && (
+        <div style={{ position:'absolute', right: 12, bottom: 10, fontSize: 12, color: '#666' }}>
+          난이도: {quiz.difficulty === 'easy' ? '하' : quiz.difficulty === 'medium' ? '중' : '상'}
         </div>
       )}
     </div>

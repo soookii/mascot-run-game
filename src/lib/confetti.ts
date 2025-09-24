@@ -1,3 +1,4 @@
+// @ts-ignore: type provided via custom d.ts
 import confetti from 'canvas-confetti';
 
 // 폭죽 효과 함수

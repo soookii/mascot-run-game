@@ -5,9 +5,8 @@ interface HUDProps {
   totalChests: number;
   streak: number;
   totalCorrect: number;
-  boosterActive: boolean;
-  boosterTimeLeft: number;
   elapsedTime: number;
+  score?: number;
 }
 
 const HUD: React.FC<HUDProps> = ({
@@ -15,9 +14,8 @@ const HUD: React.FC<HUDProps> = ({
   totalChests,
   streak,
   totalCorrect,
-  boosterActive,
-  boosterTimeLeft,
   elapsedTime,
+  score,
 }) => {
   const formatTime = (ms: number) => {
     const seconds = Math.floor(ms / 1000);
@@ -26,35 +24,12 @@ const HUD: React.FC<HUDProps> = ({
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
-  const getBoosterStatus = () => {
-    if (boosterActive) {
-      return {
-        text: 'ACTIVE',
-        className: 'booster-indicator booster-active',
-        timeLeft: Math.ceil(boosterTimeLeft / 1000),
-      };
-    } else if (totalCorrect >= 3) {
-      return {
-        text: 'READY',
-        className: 'booster-indicator booster-ready',
-        timeLeft: null,
-      };
-    } else {
-      return {
-        text: `${3 - totalCorrect} MORE`,
-        className: 'booster-indicator',
-        timeLeft: null,
-      };
-    }
-  };
-
-  const boosterStatus = getBoosterStatus();
 
   return (
     <div className="hud">
-      {/* 상자 진행률 */}
+      {/* 전기볼 진행률 */}
       <div className="hud-item">
-        <div className="hud-label">상자</div>
+        <div className="hud-label">전기볼</div>
         <div className="hud-value">
           {currentChest}/{totalChests}
         </div>
@@ -76,12 +51,11 @@ const HUD: React.FC<HUDProps> = ({
         </div>
       </div>
 
-      {/* 부스터 상태 */}
+      {/* 점수 */}
       <div className="hud-item">
-        <div className="hud-label">부스터</div>
-        <div className={boosterStatus.className}>
-          {boosterStatus.text}
-          {boosterStatus.timeLeft && ` (${boosterStatus.timeLeft}s)`}
+        <div className="hud-label">점수</div>
+        <div className="hud-value" style={{ color: '#FF8F00' }}>
+          {score ?? 0}
         </div>
       </div>
 

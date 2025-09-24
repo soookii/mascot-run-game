@@ -1,4 +1,4 @@
-import { QuizItem, GAME_CONFIG } from '../config';
+import { QuizItem } from '../config';
 
 // 게임 상태 인터페이스
 export interface GameState {
@@ -6,7 +6,7 @@ export interface GameState {
   currentState: 'IDLE' | 'RUN' | 'QUIZ' | 'STUMBLE' | 'BOOST' | 'FINISH';
   
   // 선택된 마스코트
-  selectedMascot: 'cat' | 'dog' | null;
+  selectedMascot: 'yellow' | 'blue' | null;
   
   // 월드 위치 (카메라 위치)
   worldX: number;
@@ -15,16 +15,14 @@ export interface GameState {
   currentChestIndex: number;
   totalCorrect: number;
   currentStreak: number;
+  score: number;
   
-  // 부스터 상태
-  boosterActive: boolean;
-  boosterTimeLeft: number;
-  potionSpawned: boolean;
-  potionX: number | null;
   
   // 시간 관련
   startTime: number;
   elapsedTime: number;
+  // 일시정지(퀴즈) 시작 시각
+  pauseStartMs?: number;
   
   // 퀴즈 상태
   currentQuiz: QuizItem | null;
@@ -38,6 +36,11 @@ export interface GameState {
   // 게임 종료 상태
   gameFinished: boolean;
   finishBannerX: number | null;
+
+  // 학교 정보
+  schoolName: string;
+  grade: string;
+  classroom: string;
 }
 
 // 초기 게임 상태
@@ -48,12 +51,10 @@ export const initialGameState: GameState = {
   currentChestIndex: 0,
   totalCorrect: 0,
   currentStreak: 0,
-  boosterActive: false,
-  boosterTimeLeft: 0,
-  potionSpawned: false,
-  potionX: null,
+  score: 0,
   startTime: 0,
   elapsedTime: 0,
+  pauseStartMs: 0,
   currentQuiz: null,
   quizAnswered: false,
   lastAnswerCorrect: null,
@@ -61,23 +62,28 @@ export const initialGameState: GameState = {
   jumpStartTime: 0,
   gameFinished: false,
   finishBannerX: null,
+  schoolName: '',
+  grade: '',
+  classroom: '',
 };
 
 // 게임 액션 타입
 export type GameAction =
-  | { type: 'SELECT_MASCOT'; payload: 'cat' | 'dog' }
+  | { type: 'SELECT_MASCOT'; payload: 'yellow' | 'blue' }
   | { type: 'START_GAME' }
   | { type: 'UPDATE_POSITION'; payload: { worldX: number; deltaTime: number } }
   | { type: 'TRIGGER_QUIZ'; payload: QuizItem }
   | { type: 'ANSWER_QUIZ'; payload: boolean }
+  | { type: 'ABSORB_ENERGY' }
   | { type: 'RESUME_RUN' }
-  | { type: 'ACTIVATE_BOOSTER' }
-  | { type: 'DEACTIVATE_BOOSTER' }
+  | { type: 'RESUME_RUN_NO_ADVANCE' }
   | { type: 'STUMBLE' }
   | { type: 'JUMP' }
   | { type: 'SET_FINISH_BANNER'; payload: number }
   | { type: 'FINISH_GAME' }
-  | { type: 'RESET_GAME' };
+  | { type: 'RESET_GAME' }
+  | { type: 'SET_SCHOOL_INFO'; payload: { schoolName: string; grade: string; classroom: string } };
+  
 
 // 게임 상태 리듀서
 export function gameReducer(state: GameState, action: GameAction): GameState {
@@ -93,41 +99,25 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         ...state,
         currentState: 'RUN',
         startTime: Date.now(),
+        elapsedTime: 0,
         worldX: 0,
         currentChestIndex: 0,
         totalCorrect: 0,
         currentStreak: 0,
-        boosterActive: false,
-        boosterTimeLeft: 0,
-        potionSpawned: false,
-        potionX: null,
         gameFinished: false,
         finishBannerX: null,
       };
 
     case 'UPDATE_POSITION':
       const newWorldX = action.payload.worldX;
-      const deltaTime = action.payload.deltaTime;
       
-      // 부스터 시간 업데이트
-      let newBoosterTimeLeft = state.boosterTimeLeft;
-      let newBoosterActive = state.boosterActive;
-      
-      if (state.boosterActive) {
-        newBoosterTimeLeft = Math.max(0, state.boosterTimeLeft - deltaTime);
-        if (newBoosterTimeLeft === 0) {
-          newBoosterActive = false;
-        }
-      }
-      
-      // 경과 시간 업데이트
-      const newElapsedTime = state.startTime > 0 ? Date.now() - state.startTime : 0;
+      // 경과 시간 업데이트 (스톱워치 형태)
+      const now = Date.now();
+      const newElapsedTime = state.startTime > 0 ? now - state.startTime : 0;
       
       return {
         ...state,
         worldX: newWorldX,
-        boosterActive: newBoosterActive,
-        boosterTimeLeft: newBoosterTimeLeft,
         elapsedTime: newElapsedTime,
       };
 
@@ -138,15 +128,23 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         currentQuiz: action.payload,
         quizAnswered: false,
         lastAnswerCorrect: null,
+        pauseStartMs: Date.now(),
       };
 
     case 'ANSWER_QUIZ':
       const isCorrect = action.payload === state.currentQuiz?.answer;
       const newTotalCorrect = isCorrect ? state.totalCorrect + 1 : state.totalCorrect;
       const newStreak = isCorrect ? state.currentStreak + 1 : 0;
-
-      // 부스터 해제 조건 확인 (자동 적용)
-      const unlockBooster = newTotalCorrect >= GAME_CONFIG.boosterUnlockCorrect;
+      // 점수 계산: 난이도 기본 점수 + 연속 보너스(맞춘 개수 * 10점)
+      let added = 0;
+      if (isCorrect) {
+        // 난이도 기본 점수
+        const diff = state.currentQuiz?.difficulty;
+        const base = diff === 'hard' ? 150 : diff === 'medium' ? 100 : 50;
+        added = base;
+        // 연속 보너스: 현재 연속 정답 개수 * 10점
+        added += newStreak * 10;
+      }
 
       return {
         ...state,
@@ -154,10 +152,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         lastAnswerCorrect: isCorrect,
         totalCorrect: newTotalCorrect,
         currentStreak: newStreak,
-        boosterActive: unlockBooster ? true : state.boosterActive,
-        boosterTimeLeft: unlockBooster ? GAME_CONFIG.boosterSeconds * 1000 : state.boosterTimeLeft,
-        potionSpawned: unlockBooster ? false : state.potionSpawned,
-        potionX: unlockBooster ? null : state.potionX,
+        score: state.score + added,
       };
 
     case 'RESUME_RUN':
@@ -168,28 +163,28 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         quizAnswered: false,
         lastAnswerCorrect: null,
         currentChestIndex: state.currentChestIndex + 1,
+        // 퀴즈로 멈춘 시간만큼 시작 시각을 앞으로 당겨 경과시간에서 제외
+        startTime: state.pauseStartMs ? state.startTime + (Date.now() - state.pauseStartMs) : state.startTime,
+        pauseStartMs: 0,
       };
 
-    case 'ACTIVATE_BOOSTER':
+    case 'RESUME_RUN_NO_ADVANCE':
       return {
         ...state,
-        boosterActive: true,
-        boosterTimeLeft: GAME_CONFIG.boosterSeconds * 1000,
-        potionX: null, // 부스터를 먹었으므로 제거
+        currentState: 'RUN',
+        currentQuiz: null,
+        quizAnswered: false,
+        lastAnswerCorrect: null,
+        startTime: state.pauseStartMs ? state.startTime + (Date.now() - state.pauseStartMs) : state.startTime,
+        pauseStartMs: 0,
       };
 
-    case 'DEACTIVATE_BOOSTER':
-      return {
-        ...state,
-        boosterActive: false,
-        boosterTimeLeft: 0,
-      };
 
     case 'STUMBLE':
       return {
         ...state,
         currentState: 'STUMBLE',
-        stumbleEndTime: Date.now() + 2000, // 2초 후 복구
+        stumbleEndTime: Date.now() + 3000, // 3초 후 복구 (1초 증가)
       };
 
     case 'JUMP':
@@ -215,19 +210,23 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     case 'RESET_GAME':
       return initialGameState;
 
+    case 'SET_SCHOOL_INFO':
+      return {
+        ...state,
+        schoolName: action.payload.schoolName,
+        grade: action.payload.grade,
+        classroom: action.payload.classroom,
+      };
+
     default:
       return state;
   }
 }
 
 // 헬퍼 함수들
-export function getCurrentSpeed(state: GameState, baseSpeed: number, boosterMultiplier: number): number {
+export function getCurrentSpeed(state: GameState, baseSpeed: number): number {
   if (state.currentState === 'STUMBLE' || state.currentState === 'QUIZ') {
     return 0;
-  }
-  
-  if (state.boosterActive) {
-    return baseSpeed * boosterMultiplier;
   }
   
   return baseSpeed;
